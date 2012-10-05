@@ -51,16 +51,60 @@
 					}
 				}
 			}
+		},
+
+		getOffset: function (o) {
+			var x = 0,
+			y = 0;
+			while (o && !isNaN(o.offsetLeft) && !isNaN(o.offsetTop)) {
+				x += o.offsetLeft - o.scrollLeft;
+				y += o.offsetTop - o.scrollTop;
+				o = o.parentNode;
+			}
+
+			return {
+				left: x,
+				top: y
+			}
+		},
+
+		toggleClassName: function (o, name) {
+			if (o.className.indexOf(name) !== -1) {
+				var regExp = new RegExp('(?:^|\s)' + name + '(?!\S)', 'g');
+				o.className = o.className.replace(regExp, '');
+			} else {
+				o.className += name;
+			}
+		},
+
+		pumpHelper: function (o, scrollView) {
+			var yPosScrollView = (scrollView === window) ?
+			scrollView.scrollY : this.getOffset(o).top,
+
+			yPosObj = this.getOffset(o).top;
+
+			if ((yPosScrollView - yPosObj) === 0) {
+				this.toggleClassName(o, 'inflated');
+				o.parentNode.style.height = o.offsetHeight + 'px';
+				o.parentNode.style.width = o.offsetWidth + 'px';
+			}
 		}
 	};
 
-	function pump (o) {
-		var yPos = window.scrollY;
+	function pump (o, scrollView) {
+		jeeves.pumpHelper(o, scrollView);
+
+		scrollView.onscroll = function () {
+			jeeves.pumpHelper(o, scrollView);
+		}
 	}
 
 	balloon = function (options) {
 		this.idMap = {};
 
+		this.scrollView = (options !== undefined &&
+			options.scrollView !== undefined) ?
+		options.scrollView : window;
 		// TODO: allow options to have the following:
 		//       cascade: true/false = stack headers
 		//       replace: true/false = replace headers
@@ -77,7 +121,7 @@
 					that.deflate(id);
 				}
 				that.idMap[id] = document.getElementById(id);
-				pump(that.idMap[id]);
+				pump(that.idMap[id], that.scrollView);
 			}
 
 			if (typeof o === Object) {
@@ -89,7 +133,7 @@
 
 		// Unsticks the object(s) associated with the id(s)
 		// passed in.
-		deflate: function(o) {
+		deflate: function (o) {
 			var that = this;
 			function removeIndividual (id) {
 				if (that.idMap[id] !== undefined) {
@@ -107,7 +151,7 @@
 
 		// Removes the stickiness to all headers and destroys
 		// the balloon global variable.
-		destroy: function() {
+		destroy: function () {
 			jeeves.each(this.idMap, this.deflate(id));
 			delete root.balloon;
 		}

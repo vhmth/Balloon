@@ -1,12 +1,11 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="stylesheet" type="text/css" href="balloon.css">
 		<script type="text/javascript" src="balloon.js"></script>
 	</head>
 
 	<body>
-		<header id="stickyHeader">This is a sticky header bro.</header>
-
 		<ul id="content">
 			<li>lets make this page tall</li>
 			<li>lets make this page tall</li>
@@ -41,6 +40,11 @@
 			<li>lets make this page tall</li>
 			<li>lets make this page tall</li>
 			<li>lets make this page tall</li>
+		</ul>
+		<div>
+			<header id="stickyHeader">This is a sticky header bro.</header>
+		</div>
+		<ul>
 			<li>lets make this page tall</li>
 			<li>lets make this page tall</li>
 			<li>lets make this page tall</li>
@@ -100,4 +104,9 @@
 			<li>lets make this page tall</li>
 		</ul>
 	</body>
+
+	<script type="text/javascript">
+		var bal = new Balloon();
+		bal.inflate('stickyHeader');
+	</script>
 </html>
