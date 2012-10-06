@@ -6,6 +6,9 @@
 	</head>
 
 	<body>
+		<div>
+			<header id="stickyHeader1">This is a sticky header bro.</header>
+		</div>
 		<ul id="content">
 			<li>lets make this page tall</li>
 			<li>lets make this page tall</li>
@@ -42,7 +45,7 @@
 			<li>lets make this page tall</li>
 		</ul>
 		<div>
-			<header id="stickyHeader">This is a sticky header bro.</header>
+			<header id="stickyHeader2">This is another sticky header bro.</header>
 		</div>
 		<ul>
 			<li>lets make this page tall</li>
@@ -107,6 +110,6 @@
 
 	<script type="text/javascript">
 		var bal = new Balloon();
-		bal.inflate('stickyHeader');
+		bal.inflate(['stickyHeader1', 'stickyHeader2']);
 	</script>
 </html>

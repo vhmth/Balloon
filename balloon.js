@@ -4,14 +4,14 @@
  *         vhiremath4@gmail.com
  *         www.vhmath.com
  *
- * Terms: I have no legitimate license associated with
- *        Balloon. All I ask is that you don't try to
- *        sell Balloon to others on its own. If you're
- *        simply using it as a tool (even for a profitable
- *        website), that's cool with me. Other than that,
- *        feel free to do whatever you want with Balloon.
- *        If you wish, you may also remove this header.
- *        Code on broski.
+ * Terms: There is no legitimate license associated with
+ *        Balloon and I don't intend there to be. All I ask
+ *        is that you don't try to sell Balloon to others
+ *        on its own. If you're simply using it as a tool
+ *        (even for a profitable website), that's cool with
+ *        me. Other than that, feel free to do whatever you
+ *        want with Balloon. If you wish, you may also remove
+ *        this header. Code on broski.
  */
 
 (function () {
@@ -20,6 +20,7 @@
 	var
 	VER = '0.1',
 	root = this,
+	INFLATION_CLASS_NAME = 'inflated',
 
 	balloon,
 	jeeves;
@@ -69,7 +70,7 @@
 		},
 
 		toggleClassName: function (o, name) {
-			if (o.className.indexOf(name) !== -1) {
+			if (this.hasClass(o, name)) {
 				var regExp = new RegExp('(?:^|\s)' + name + '(?!\S)', 'g');
 				o.className = o.className.replace(regExp, '');
 			} else {
@@ -77,16 +78,34 @@
 			}
 		},
 
+		hasClass: function (o, name) {
+			return o.className.indexOf(name) !== -1;
+		},
+
 		pumpHelper: function (o, scrollView) {
+			var preCalculationToggle = false;
+			if (this.hasClass(o, INFLATION_CLASS_NAME)) {
+				this.toggleClassName(o, INFLATION_CLASS_NAME);
+				preCalculationToggle = true;
+			}
+
 			var yPosScrollView = (scrollView === window) ?
 			scrollView.scrollY : this.getOffset(o).top,
 
 			yPosObj = this.getOffset(o).top;
 
-			if ((yPosScrollView - yPosObj) === 0) {
-				this.toggleClassName(o, 'inflated');
-				o.parentNode.style.height = o.offsetHeight + 'px';
-				o.parentNode.style.width = o.offsetWidth + 'px';
+			if (preCalculationToggle) {
+				this.toggleClassName(o, INFLATION_CLASS_NAME);
+			}
+
+			if ((yPosScrollView - yPosObj) >= 0) {
+				if (!this.hasClass(o, INFLATION_CLASS_NAME)) {
+					this.toggleClassName(o, INFLATION_CLASS_NAME);
+					o.parentNode.style.height = o.offsetHeight + 'px';
+					o.parentNode.style.width = o.offsetWidth + 'px';
+				}
+			} else if (this.hasClass(o, INFLATION_CLASS_NAME)) {
+				this.toggleClassName(o, INFLATION_CLASS_NAME);
 			}
 		}
 	};
@@ -99,15 +118,20 @@
 		}
 	}
 
+	// options is an optional object with the follow
 	balloon = function (options) {
 		this.idMap = {};
 
-		this.scrollView = (options !== undefined &&
-			options.scrollView !== undefined) ?
-		options.scrollView : window;
-		// TODO: allow options to have the following:
-		//       cascade: true/false = stack headers
-		//       replace: true/false = replace headers
+		if (options !== undefined) {
+			this.scrollView = (options.scrollView !== undefined) ?
+			options.scrollView : window;
+
+			this.stackHeaders = (options.stackHeaders !== undefined) ?
+			options.stackHeaders : false;
+		} else {
+			this.scrollView = window;
+			this.stackHeaders = false;
+		}
 	};
 
 	balloon.prototype = {
@@ -124,8 +148,10 @@
 				pump(that.idMap[id], that.scrollView);
 			}
 
-			if (typeof o === Object) {
-				jeeves.each(o, addIndividual(id));
+			if (typeof o === 'object') {
+				jeeves.each(o, function (id) {
+					addIndividual(id)
+				});
 			} else {
 				addIndividual(o);
 			}
@@ -142,21 +168,30 @@
 				}
 			}
 
-			if (typeof o === Object) {
-				jeeves.each(o, removeIndividual(id));
+			if (typeof o === 'object') {
+				jeeves.each(o, function (id) {
+					removeIndividual(id)
+				});
 			} else {
 				removeIndividual(o);
 			}
 		},
 
-		// Removes the stickiness to all headers and destroys
-		// the balloon global variable.
+		// Removes the stickiness to all headers in this
+		// Balloon instance.
 		destroy: function () {
-			jeeves.each(this.idMap, this.deflate(id));
-			delete root.balloon;
+			var that = this;
+			jeeves.each(this.idMap, function (id) {
+				that.deflate(id)
+			});
+			delete this;
 		}
 	};
 
 	root.Balloon = balloon;
+
+	root.Balloon.destroy = function () {
+		delete root.Balloon;
+	};
 
 }).call(this);

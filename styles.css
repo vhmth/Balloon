@@ -9,3 +9,7 @@ header {
 	width: 100%;
 	text-align: center;
 }
+
+#stickyHeader2 {
+	background: blue;
+}
