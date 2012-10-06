@@ -82,17 +82,14 @@
 			return o.className.indexOf(name) !== -1;
 		},
 
-		pumpHelper: function (o, scrollView) {
+		pumpHelper: function (o, yPosScrollView) {
 			var preCalculationToggle = false;
 			if (this.hasClass(o, INFLATION_CLASS_NAME)) {
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
 				preCalculationToggle = true;
 			}
 
-			var yPosScrollView = (scrollView === window) ?
-			scrollView.scrollY : this.getOffset(o).top,
-
-			yPosObj = this.getOffset(o).top;
+			var yPosObj = this.getOffset(o).top;
 
 			if (preCalculationToggle) {
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
@@ -103,24 +100,75 @@
 					this.toggleClassName(o, INFLATION_CLASS_NAME);
 					o.parentNode.style.height = o.offsetHeight + 'px';
 					o.parentNode.style.width = o.offsetWidth + 'px';
+
+					o.style.position = '';
+					o.style.zIndex = '';
 				}
 			} else if (this.hasClass(o, INFLATION_CLASS_NAME)) {
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
+
+				o.style.position = 'relative';
+				o.style.zIndex = 1;
 			}
 		}
 	};
 
-	function pump (o, scrollView) {
-		jeeves.pumpHelper(o, scrollView);
+	function determineCurrentHeader(balloonInst, yPosScrollView) {
+		if (yPosScrollView >=
+			jeeves.getOffset(
+				balloonInst.headerStack[balloonInst.currentHeader + 1]
+			).top) {
+
+			if (balloonInst.currentHeader < balloonInst.headerStack.length - 1) {
+				++balloonInst.currentHeader;
+			}
+		} else if (yPosScrollView <=
+			jeeves.getOffset(
+				balloonInst.headerStack[balloonInst.currentHeader - 1]
+			).top) {
+
+			if (balloonInst.currentHeader > 0) {
+				--balloonInst.currentHeader;
+			}
+		}
+	}
+
+	function pump (balloonInst, scrollView) {
+		var yPosScrollView = (scrollView === window) ?
+		scrollView.scrollY : jeeves.getOffset(scrollView);
+		jeeves.pumpHelper(
+			balloonInst.headerStack[balloonInst.currentHeader],
+			yPosScrollView
+		);
 
 		scrollView.onscroll = function () {
-			jeeves.pumpHelper(o, scrollView);
+			var yPosScrollView = (scrollView === window) ?
+			scrollView.scrollY : jeeves.getOffset(scrollView);
+			determineCurrentHeader(balloonInst, yPosScrollView);
+
+			jeeves.pumpHelper(
+				balloonInst.headerStack[balloonInst.currentHeader],
+				yPosScrollView
+			);
 		}
+	}
+
+	function sortStack (stack) {
+		stack.sort(function (h1, h2) {
+			return jeeves.getOffset(h1).top - jeeves.getOffset(h2).top;
+		});
+
+		jeeves.each(stack.slice(1), function (header) {
+			header.style.position = 'relative';
+			header.style.zIndex = 1;
+		});
 	}
 
 	// options is an optional object with the follow
 	balloon = function (options) {
 		this.idMap = {};
+		this.headerStack = [];
+		this.currentHeader = 0;
 
 		if (options !== undefined) {
 			this.scrollView = (options.scrollView !== undefined) ?
@@ -145,7 +193,7 @@
 					that.deflate(id);
 				}
 				that.idMap[id] = document.getElementById(id);
-				pump(that.idMap[id], that.scrollView);
+				that.headerStack.push(that.idMap[id]);
 			}
 
 			if (typeof o === 'object') {
@@ -155,6 +203,8 @@
 			} else {
 				addIndividual(o);
 			}
+			sortStack(this.headerStack);
+			pump(this, this.scrollView);
 		},
 
 		// Unsticks the object(s) associated with the id(s)
@@ -163,7 +213,24 @@
 			var that = this;
 			function removeIndividual (id) {
 				if (that.idMap[id] !== undefined) {
-					// TODO: unbind events from elem,
+					that.idMap[id].style.position = '';
+					that.idMap[id].style.zIndex = '';
+					if (jeeves.hasClass(that.idMap[id], INFLATION_CLASS_NAME)) {
+						jeeves.toggleClassName(that.idMap[id], INFLATION_CLASS_NAME);
+					}
+
+					if (that.headerStack.indexOf(that.idMap[id]) <= that.currentHeader &&
+					that.currentHeader > 0) {
+						--that.currentHeader;
+					}
+
+					that.headerStack.splice(
+						that.headerStack.indexOf(that.idMap[id]),
+						1
+					);
+					if (that.headerStack.length === 0 && that.scrollView.onScroll !== null) {
+						that.scrollView.onscroll = null;
+					}
 					delete that.idMap[id];
 				}
 			}
@@ -184,7 +251,6 @@
 			jeeves.each(this.idMap, function (id) {
 				that.deflate(id)
 			});
-			delete this;
 		}
 	};
 
