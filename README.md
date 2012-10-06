@@ -86,6 +86,9 @@ the headers it owns), call destroy:
 
     balloonInst.destroy();
 
+This will not actually destroy the instance. It will simply unsticky
+all headers it owns.
+
 If you wish to unstick one or more headers a balloon instance owns
 (but keep the balloon instance alive), call deflate with the id(s)
 of the header(s) you wish to unstick:
@@ -105,6 +108,3 @@ balloon.js script is included. If you wish to destroy this object,
 simply call destroy on it:
 
     Balloon.destroy();
-
-Make sure to call destroy on each of the Balloon instances you have
-created before destroying the Balloon object to avoid memory leaks.
