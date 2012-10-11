@@ -82,6 +82,14 @@
 			return o.className.indexOf(name) !== -1;
 		},
 
+		setOption: function (balloonInst, options, oName, fallback) {
+			if (options[oName] !== undefined) {
+				balloonInst[oName] = options[oName];
+			} else {
+				balloonInst[oName] = fallback;
+			}
+		},
+
 		pumpHelper: function (o, yPosScrollView) {
 			var preCalculationToggle = false;
 			if (this.hasClass(o, INFLATION_CLASS_NAME)) {
@@ -114,22 +122,17 @@
 	};
 
 	function determineCurrentHeader(balloonInst, yPosScrollView) {
-		if (yPosScrollView >=
-			jeeves.getOffset(
-				balloonInst.headerStack[balloonInst.currentHeader + 1]
-			).top) {
+		var currentHeader = balloonInst.currentHeader,
+		headerStack = balloonInst.headerStack;
 
-			if (balloonInst.currentHeader < balloonInst.headerStack.length - 1) {
+		if (currentHeader < (headerStack.length - 1) &&
+			yPosScrollView >=
+			jeeves.getOffset(headerStack[currentHeader + 1]).top) {
 				++balloonInst.currentHeader;
-			}
-		} else if (yPosScrollView <=
-			jeeves.getOffset(
-				balloonInst.headerStack[balloonInst.currentHeader - 1]
-			).top) {
-
-			if (balloonInst.currentHeader > 0) {
+		} else if (currentHeader > 0 &&
+			yPosScrollView <=
+			jeeves.getOffset(headerStack[currentHeader - 1]).top) {
 				--balloonInst.currentHeader;
-			}
 		}
 	}
 
@@ -171,11 +174,8 @@
 		this.currentHeader = 0;
 
 		if (options !== undefined) {
-			this.scrollView = (options.scrollView !== undefined) ?
-			options.scrollView : window;
-
-			this.stackHeaders = (options.stackHeaders !== undefined) ?
-			options.stackHeaders : false;
+			jeeves.setOption(this, options, 'scrollView', window);
+			jeeves.setOption(this, options, 'stackHeaders', false);
 		} else {
 			this.scrollView = window;
 			this.stackHeaders = false;
