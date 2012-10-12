@@ -2,3 +2,8 @@
 	position: fixed;
 	top: 0px;
 }
+
+.floating {
+	position: relative;
+	z-index: 1;
+}

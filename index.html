@@ -109,7 +109,9 @@
 	</body>
 
 	<script type="text/javascript">
-		var bal = new Balloon();
+		var bal = new Balloon({
+			stackHeaders: true
+		});
 		bal.inflate(['stickyHeader2', 'stickyHeader1']);
 	</script>
 </html>
