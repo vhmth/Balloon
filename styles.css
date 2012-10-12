@@ -13,3 +13,11 @@ header {
 #stickyHeader2 {
 	background: blue;
 }
+
+#stickyHeader3 {
+	background: green;
+}
+
+#stickyHeader4 {
+	background: red;
+}

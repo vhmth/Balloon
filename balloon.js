@@ -116,7 +116,7 @@
 					o.parentNode.style.height = o.offsetHeight + 'px';
 					o.parentNode.style.width = o.offsetWidth + 'px';
 
-					if (currentHeader > 0) {
+					if (currentHeader > 0 && balloonInst.stackHeaders) {
 						o.style.top = balloonInst.offsetTop + 'px';
 					}
 
@@ -128,7 +128,7 @@
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
 				this.toggleClassName(o, FLOATING_CLASS_NAME);
 
-				if (currentHeader > 0) {
+				if (currentHeader > 0 && balloonInst.stackHeaders) {
 					o.style.top = '';
 					if (currentHeader > 1) {
 						balloonInst.offsetTop -= balloonInst.headerStack[currentHeader].offsetHeight;
@@ -155,15 +155,27 @@
 		if (currentHeader < (headerStack.length - 1) &&
 			(yPosScrollView + headerTopOffset)  >=
 			headerStack[currentHeader + 1].offsetTop) {
-				++balloonInst.currentHeader;
-		} else if (currentHeader > 0 &&
-			yPosScrollView <=
-			headerStack[currentHeader - 1].offsetTop) {
-				--balloonInst.currentHeader;
+			++balloonInst.currentHeader;
+		} else if (currentHeader > 0) {
+			if (jeeves.hasClass(headerStack[currentHeader - 1],
+				INFLATION_CLASS_NAME)) {
+				jeeves.toggleClassName(
+					headerStack[currentHeader - 1],
+					INFLATION_CLASS_NAME
+				);
+				if (yPosScrollView <=
+					headerStack[currentHeader - 1].offsetTop) {
+					--balloonInst.currentHeader;
+				}
+				jeeves.toggleClassName(
+					headerStack[currentHeader - 1],
+					INFLATION_CLASS_NAME
+				);
+			}
 		}
 
-		if (currentHeader !== balloonInst.currentHeader &&
-			balloonInst.stackHeaders) {
+		if (balloonInst.stackHeaders &&
+			currentHeader !== balloonInst.currentHeader) {
 			determineCurrentTopOffset(balloonInst);
 		}
 	}
