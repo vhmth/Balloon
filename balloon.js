@@ -104,7 +104,8 @@
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
 			}
 
-			var diff = yPosScrollView - yPosObj;
+			var diff = yPosScrollView - yPosObj,
+			currentHeader = balloonInst.currentHeader;
 			if (balloonInst.stackHeaders) {
 				diff += balloonInst.offsetTop;
 			}
@@ -115,7 +116,7 @@
 					o.parentNode.style.height = o.offsetHeight + 'px';
 					o.parentNode.style.width = o.offsetWidth + 'px';
 
-					if (balloonInst.currentHeader > 0) {
+					if (currentHeader > 0) {
 						o.style.top = balloonInst.offsetTop + 'px';
 					}
 
@@ -127,8 +128,12 @@
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
 				this.toggleClassName(o, FLOATING_CLASS_NAME);
 
-				if (balloonInst.currentHeader > 0) {
+				if (currentHeader > 0) {
 					o.style.top = '';
+					if (currentHeader > 1) {
+						balloonInst.offsetTop -= balloonInst.headerStack[currentHeader].offsetHeight;
+						o.style.top = '';
+					}
 				}
 			}
 		}
@@ -137,23 +142,23 @@
 	function determineCurrentTopOffset(balloonInst) {
 		var currentHeader = balloonInst.currentHeader,
 		i;
-		balloonInst.offsetTop = 0;
-		for (i = 0; i < currentHeader; ++i) {
+		for (i = currentHeader; i < currentHeader.length - 1; ++i) {
 			balloonInst.offsetTop += balloonInst.headerStack[i].offsetHeight;
 		}
 	}
 
 	function determineCurrentHeader (balloonInst, yPosScrollView) {
 		var currentHeader = balloonInst.currentHeader,
-		headerStack = balloonInst.headerStack;
+		headerStack = balloonInst.headerStack,
+		headerTopOffset = balloonInst.offsetTop;
 
 		if (currentHeader < (headerStack.length - 1) &&
-			yPosScrollView >=
-			jeeves.getOffset(headerStack[currentHeader + 1]).top) {
+			(yPosScrollView + headerTopOffset)  >=
+			headerStack[currentHeader + 1].offsetTop) {
 				++balloonInst.currentHeader;
 		} else if (currentHeader > 0 &&
 			yPosScrollView <=
-			jeeves.getOffset(headerStack[currentHeader - 1]).top) {
+			headerStack[currentHeader - 1].offsetTop) {
 				--balloonInst.currentHeader;
 		}
 
@@ -165,7 +170,7 @@
 
 	function pump (balloonInst, scrollView) {
 		var yPosScrollView = (scrollView === window) ?
-		scrollView.scrollY : jeeves.getOffset(scrollView);
+		scrollView.scrollY : jeeves.getOffset(scrollView).top;
 		jeeves.pumpHelper(
 			balloonInst.headerStack[balloonInst.currentHeader],
 			balloonInst,
@@ -174,7 +179,7 @@
 
 		scrollView.onscroll = function () {
 			var yPosScrollView = (scrollView === window) ?
-			scrollView.scrollY : jeeves.getOffset(scrollView);
+			scrollView.scrollY : jeeves.getOffset(scrollView).top;
 			determineCurrentHeader(balloonInst, yPosScrollView);
 
 			jeeves.pumpHelper(
