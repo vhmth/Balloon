@@ -54,7 +54,9 @@ Making your headers sticky is as easy as 3 steps!
   that represent the id(s) of the header(s) you wish to make sticky.
   Remember to make sure that these elements are all within the same
   scrolling view/element. If you're passing in multiple ids, you may
-  pass them in as either an object or array:
+  pass them in as either an object or array (the values in an object
+  literal do not matter, just that the keys are strings that represent
+  the id(s) of the header(s) you wish to stick):
 
     balloonInst.inflate(['header1', 'header2']);
 
