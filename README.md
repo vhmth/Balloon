@@ -85,25 +85,25 @@ So, to recap:
 Deflating
 =========
 
-To destroy a specific balloon instance (and therefore unstick all
-the headers it owns), call destroy:
+To destroy a specific balloon instance (unstick all the headers it
+owns), call destroy on it:
 
     balloonInst.destroy();
 
-This will not actually destroy the instance. It will simply unsticky
+This will not actually destroy the instance. It will simply unstick
 all headers it owns.
 
-If you wish to unstick one or more headers a balloon instance owns
-(but keep the balloon instance alive), call deflate with the id(s)
-of the header(s) you wish to unstick:
+If you wish to unstick one or more headers a balloon instance owns,
+call deflate, passing in the id(s) of the header(s) you wish to
+unstick:
 
     balloonInst.deflate('header');
 
-            OR
+  OR
 
     balloonInst.deflate(['header1', 'header2']);
 
-            OR
+  OR
 
     balloonInst.deflate({'header1', 'header2'});
 
