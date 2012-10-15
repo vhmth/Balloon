@@ -60,7 +60,7 @@ Making your headers sticky is as easy as 3 steps!
 
   OR
 
-    balloonInst.inflate({'header1', 'header2'});
+    balloonInst.inflate({'header1': SOME_VALUE, 'header2': SOME_VALUE});
 
   OR
 
@@ -106,7 +106,7 @@ unstick:
 
   OR
 
-    balloonInst.deflate({'header1', 'header2'});
+    balloonInst.deflate({'header1': SOME_VALUE, 'header2': SOME_VALUE});
 
 You will notice that Balloon is added to the global scope when the
 balloon.js script is included. If you wish to destroy this object,
