@@ -1,11 +1,13 @@
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href="example.css">
+		<link rel="stylesheet" type="text/css" href="styles.css">
 		<link rel="stylesheet" type="text/css" href="balloon.css">
 		<script type="text/javascript" src="balloon.js"></script>
 	</head>
 
 	<body>
+		<button id="stack">Stack</button>
+		<button id="replace">Replace</button>
 		<div>
 			<header id="stickyHeader1">This is a sticky header bro.</header>
 		</div>
@@ -252,9 +254,16 @@
 	</body>
 
 	<script type="text/javascript">
-		var bal = new Balloon({
-			stackHeaders: true
-		});
-		bal.inflate(['stickyHeader2', 'stickyHeader4', 'stickyHeader1', 'stickyHeader3']);
+		document.getElementById('stack').onclick = function () {
+			var bal = new Balloon({
+				stackHeaders: true
+			});
+			bal.inflate(['stickyHeader2', 'stickyHeader4', 'stickyHeader1', 'stickyHeader3']);
+		};
+
+		document.getElementById('replace').onclick = function () {
+			var bal = new Balloon();
+			bal.inflate(['stickyHeader2', 'stickyHeader4', 'stickyHeader1', 'stickyHeader3']);
+		};
 	</script>
 </html>
