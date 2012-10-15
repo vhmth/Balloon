@@ -79,6 +79,13 @@
 			}
 		},
 
+		getWindowScrollPos: function () {
+			return (window.pageYOffset !== undefined) ? window.pageYOffset :
+			(document.documentElement ||
+			document.body.parentNode ||
+			document.body).scrollTop;
+		},
+
 		hasClass: function (o, name) {
 			return o.className.indexOf(name) !== -1;
 		},
@@ -89,6 +96,16 @@
 			} else {
 				balloonInst[oName] = fallback;
 			}
+		},
+
+		allHeadersInflated: function (balloonInst) {
+			return (
+				(balloonInst.currentHeader === balloonInst.headerStack.length - 1) &&
+				this.hasClass(
+					balloonInst.headerStack[balloonInst.currentHeader],
+					INFLATION_CLASS_NAME
+				)
+			);
 		},
 
 		pumpHelper: function (o, balloonInst, yPosScrollView) {
@@ -104,10 +121,18 @@
 				this.toggleClassName(o, INFLATION_CLASS_NAME);
 			}
 
+			var scrollDown = (yPosScrollView - balloonInst.lastScrollPos) >= 0;
+			balloonInst.lastScrollPos = yPosScrollView;
+
 			var diff = yPosScrollView - yPosObj,
 			currentHeader = balloonInst.currentHeader;
-			if (balloonInst.stackHeaders) {
+			if (balloonInst.stackHeaders &&
+				balloonInst.currentHeader > 0) {
 				diff += balloonInst.offsetTop;
+			}
+
+			if (!scrollDown) {
+				diff -= o.offsetHeight;
 			}
 
 			if (diff >= 0) {
@@ -118,6 +143,7 @@
 
 					if (currentHeader > 0 && balloonInst.stackHeaders) {
 						o.style.top = balloonInst.offsetTop + 'px';
+						balloonInst.offsetTop += o.offsetHeight;
 					}
 
 					if (this.hasClass(o, FLOATING_CLASS_NAME)) {
@@ -130,22 +156,11 @@
 
 				if (currentHeader > 0 && balloonInst.stackHeaders) {
 					o.style.top = '';
-					if (currentHeader > 1) {
-						balloonInst.offsetTop -= balloonInst.headerStack[currentHeader].offsetHeight;
-						o.style.top = '';
-					}
+					balloonInst.offsetTop -= o.offsetHeight;
 				}
 			}
 		}
 	};
-
-	function determineCurrentTopOffset(balloonInst) {
-		var currentHeader = balloonInst.currentHeader,
-		i;
-		for (i = currentHeader; i < currentHeader.length - 1; ++i) {
-			balloonInst.offsetTop += balloonInst.headerStack[i].offsetHeight;
-		}
-	}
 
 	function determineCurrentHeader (balloonInst, yPosScrollView) {
 		var currentHeader = balloonInst.currentHeader,
@@ -173,33 +188,44 @@
 				);
 			}
 		}
+	}
 
-		if (balloonInst.stackHeaders &&
-			currentHeader !== balloonInst.currentHeader) {
-			determineCurrentTopOffset(balloonInst);
+	function inflateUpToCurrent (balloonInst, yPosScrollView) {
+		var i, currentHeader = 0;
+		for (i = balloonInst.headerStack.length - 1; i > 0; --i) {
+			var offsetTop = 0;
+			if (balloonInst.stackHeaders) {
+				var j;
+				for (j = 0; j < i; ++j) {
+					offsetTop += balloonInst.headerStack[j].offsetHeight;
+				}
+			}
+			if ((yPosScrollView + offsetTop) >= balloonInst.headerStack[i].offsetTop) {
+				currentHeader = i;
+			}
 		}
 	}
 
 	function pump (balloonInst, scrollView) {
 		var yPosScrollView = (scrollView === window) ?
-		scrollView.scrollY : jeeves.getOffset(scrollView).top;
+		jeeves.getWindowScrollPos() : jeeves.getOffset(scrollView).top;
+		inflateUpToCurrent(balloonInst, yPosScrollView);
+
+		scrollView.onscroll = function () {
+			pumpCore(balloonInst, scrollView);
+		}
+	}
+
+	function pumpCore (balloonInst, scrollView) {
+		var yPosScrollView = (scrollView === window) ?
+		jeeves.getWindowScrollPos() : jeeves.getOffset(scrollView).top;
+		determineCurrentHeader(balloonInst, yPosScrollView);
+
 		jeeves.pumpHelper(
 			balloonInst.headerStack[balloonInst.currentHeader],
 			balloonInst,
 			yPosScrollView
 		);
-
-		scrollView.onscroll = function () {
-			var yPosScrollView = (scrollView === window) ?
-			scrollView.scrollY : jeeves.getOffset(scrollView).top;
-			determineCurrentHeader(balloonInst, yPosScrollView);
-
-			jeeves.pumpHelper(
-				balloonInst.headerStack[balloonInst.currentHeader],
-				balloonInst,
-				yPosScrollView
-			);
-		}
 	}
 
 	function sortStack (stack) {
@@ -220,6 +246,7 @@
 		this.headerStack = [];
 		this.currentHeader = 0;
 		this.offsetTop = 0;
+		this.lastScrollPos = 0;
 
 		if (options !== undefined) {
 			jeeves.setOption(this, options, 'scrollView', window);
@@ -251,10 +278,10 @@
 			} else {
 				addIndividual(o);
 			}
-			sortStack(this.headerStack);
 			if (this.stackHeaders) {
 				this.offsetTop = this.headerStack[0].offsetHeight;
 			}
+			sortStack(this.headerStack);
 			pump(this, this.scrollView);
 		},
 
