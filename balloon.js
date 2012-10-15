@@ -265,7 +265,6 @@
 		});
 	}
 
-	// options is an optional object with the follow
 	balloon = function (options) {
 		this.idMap = {};
 		this.headerStack = [];
