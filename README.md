@@ -1,8 +1,9 @@
 Balloon
 =======
 
-Sticky header with no jQuery dependency. Pull from the repo and load example.html
-into your browser to see Balloon in action.
+Sticky header with no jQuery dependency.
+
+Balloon in action: http://vhiremath4.github.com/Balloon
 
 
 Inflating
