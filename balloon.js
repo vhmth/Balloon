@@ -38,7 +38,7 @@
 
 			if (this.isArray(list)) {
 				if (Array.forEach !== undefined) {
-					Array.forEach(iterFunc);
+					list.forEach(iterFunc);
 				} else {
 					var i;
 					for (i = 0; i < list.length; ++i) {
@@ -191,9 +191,10 @@
 	}
 
 	function inflateUpToCurrent (balloonInst, yPosScrollView) {
-		var i, currentHeader = 0;
-		for (i = balloonInst.headerStack.length - 1; i > 0; --i) {
-			var offsetTop = 0;
+		var i, currentHeader = 0,
+		offsetTop = 0;
+		for (i = balloonInst.headerStack.length - 1; i >= 0; --i) {
+			offsetTop = 0;
 			if (balloonInst.stackHeaders) {
 				var j;
 				for (j = 0; j < i; ++j) {
@@ -202,8 +203,32 @@
 			}
 			if ((yPosScrollView + offsetTop) >= balloonInst.headerStack[i].offsetTop) {
 				currentHeader = i;
+				break;
 			}
 		}
+
+		balloonInst.currentHeader = currentHeader;
+		if (balloonInst.stackHeaders) {
+			balloonInst.offsetTop =
+			offsetTop + balloonInst.headerStack[currentHeader].offsetHeight;
+		}
+		jeeves.each(balloonInst.headerStack.slice(0, currentHeader + 1), function (o, index) {
+			jeeves.toggleClassName(o, INFLATION_CLASS_NAME);
+			o.parentNode.style.height = o.offsetHeight + 'px';
+			o.parentNode.style.width = o.offsetWidth + 'px';
+
+			if (currentHeader > 0 && balloonInst.stackHeaders) {
+				var offsetTop = 0, i;
+				for (i = 0; i < index; ++i) {
+					offsetTop += balloonInst.headerStack[i].offsetHeight;
+				}
+				o.style.top = offsetTop + 'px';
+			}
+
+			if (jeeves.hasClass(o, FLOATING_CLASS_NAME)) {
+				jeeves.toggleClassName(o, FLOATING_CLASS_NAME);
+			}
+		});
 	}
 
 	function pump (balloonInst, scrollView) {
@@ -247,6 +272,7 @@
 		this.currentHeader = 0;
 		this.offsetTop = 0;
 		this.lastScrollPos = 0;
+		this.offsetTop = 0;
 
 		if (options !== undefined) {
 			jeeves.setOption(this, options, 'scrollView', window);
@@ -278,11 +304,10 @@
 			} else {
 				addIndividual(o);
 			}
-			if (this.stackHeaders) {
-				this.offsetTop = this.headerStack[0].offsetHeight;
-			}
 			sortStack(this.headerStack);
-			pump(this, this.scrollView);
+			window.onscroll = function () {
+				pump(that, that.scrollView);
+			}
 		},
 
 		// Unsticks the object(s) associated with the id(s)
