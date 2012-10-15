@@ -1,0 +1,23 @@
+body {
+	margin: 0px;
+}
+
+header {
+	color: white;
+	background: black;
+	height: 100px;
+	width: 100%;
+	text-align: center;
+}
+
+#stickyHeader2 {
+	background: blue;
+}
+
+#stickyHeader3 {
+	background: green;
+}
+
+#stickyHeader4 {
+	background: red;
+}

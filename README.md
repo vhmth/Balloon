@@ -67,15 +67,15 @@ Making your headers sticky is as easy as 3 steps!
 
 So, to recap:
 
-  1.) Template:
+1.) Template:
     <div>
         <div id="header">Header</div>
-     </div>
+    </div>
 
-  2.) Instantiate:
+2.) Instantiate:
     var balloonInst = new Balloon();
 
-  3.) Inflate:
+3.) Inflate:
     balloonInst.inflate('header');
 
 
