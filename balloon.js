@@ -131,7 +131,7 @@
 				diff += balloonInst.offsetTop;
 			}
 
-			if (!scrollDown) {
+			if (!scrollDown && balloonInst.stackHeaders) {
 				diff -= o.offsetHeight;
 			}
 
