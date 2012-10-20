@@ -115,3 +115,17 @@ balloon.js script is included. If you wish to destroy this object,
 simply call destroy on it:
 
     Balloon.destroy();
+
+
+Known Issues
+============
+
+Currently the only known issue with Balloon is its issues on iOS due to
+its use of the 'position: fixed' CSS property. The most noticable issue
+is that, when a user scrolls down the page, the scroll position is not
+updated until the scrolling has ended. This causes a less responsive
+experience, and I will be working on either an entirely separate mobile
+balloon version or will build on top of Balloon to check if the user agent
+is on iOS and then perform some trickery. Until then, I suggest only using
+Balloon if you intend for your website to be accessed from a desktop and
+do not care if the headers stick immediately on iOS.
