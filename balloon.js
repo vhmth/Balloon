@@ -20,8 +20,8 @@
 	var
 	VER = '0.1',
 	root = this,
-	INFLATION_CLASS_NAME = 'inflated',
-	FLOATING_CLASS_NAME  = 'floating',
+	INFLATION_CLASS_NAME = 'balloon-inflated',
+	FLOATING_CLASS_NAME  = 'balloon-floating',
 
 	balloon,
 	jeeves;
