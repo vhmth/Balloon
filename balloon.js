@@ -96,128 +96,40 @@
 			} else {
 				balloonInst[oName] = fallback;
 			}
-		},
-
-		allHeadersInflated: function (balloonInst) {
-			return (
-				(balloonInst.currentHeader === balloonInst.headerStack.length - 1) &&
-				this.hasClass(
-					balloonInst.headerStack[balloonInst.currentHeader],
-					INFLATION_CLASS_NAME
-				)
-			);
-		},
-
-		pumpHelper: function (o, balloonInst, yPosScrollView) {
-			var preCalculationToggle = false;
-			if (this.hasClass(o, INFLATION_CLASS_NAME)) {
-				this.toggleClassName(o, INFLATION_CLASS_NAME);
-				preCalculationToggle = true;
-			}
-
-			var yPosObj = o.offsetTop;
-
-			if (preCalculationToggle) {
-				this.toggleClassName(o, INFLATION_CLASS_NAME);
-			}
-
-			var scrollDown = (yPosScrollView - balloonInst.lastScrollPos) >= 0;
-			balloonInst.lastScrollPos = yPosScrollView;
-
-			var diff = yPosScrollView - yPosObj,
-			currentHeader = balloonInst.currentHeader;
-			if (balloonInst.stackHeaders &&
-				balloonInst.currentHeader > 0) {
-				diff += balloonInst.offsetTop;
-			}
-
-			if (!scrollDown && balloonInst.stackHeaders) {
-				diff -= o.offsetHeight;
-			}
-
-			if (diff >= 0) {
-				if (!this.hasClass(o, INFLATION_CLASS_NAME)) {
-					this.toggleClassName(o, INFLATION_CLASS_NAME);
-					o.parentNode.style.height = o.offsetHeight + 'px';
-					o.parentNode.style.width = o.offsetWidth + 'px';
-
-					if (currentHeader > 0 && balloonInst.stackHeaders) {
-						o.style.top = balloonInst.offsetTop + 'px';
-						balloonInst.offsetTop += o.offsetHeight;
-					}
-
-					if (this.hasClass(o, FLOATING_CLASS_NAME)) {
-						this.toggleClassName(o, FLOATING_CLASS_NAME);
-					}
-				}
-			} else if (this.hasClass(o, INFLATION_CLASS_NAME)) {
-				this.toggleClassName(o, INFLATION_CLASS_NAME);
-				this.toggleClassName(o, FLOATING_CLASS_NAME);
-
-				if (currentHeader > 0 && balloonInst.stackHeaders) {
-					o.style.top = '';
-					balloonInst.offsetTop -= o.offsetHeight;
-				}
-			}
 		}
 	};
 
-	function determineCurrentHeader (balloonInst, yPosScrollView) {
-		var currentHeader = balloonInst.currentHeader,
-		headerStack = balloonInst.headerStack,
-		headerTopOffset = balloonInst.offsetTop;
-
-		if (currentHeader < (headerStack.length - 1) &&
-			(yPosScrollView + headerTopOffset)  >=
-			headerStack[currentHeader + 1].offsetTop) {
-			++balloonInst.currentHeader;
-		} else if (currentHeader > 0) {
-			if (jeeves.hasClass(headerStack[currentHeader - 1],
-				INFLATION_CLASS_NAME)) {
-				jeeves.toggleClassName(
-					headerStack[currentHeader - 1],
-					INFLATION_CLASS_NAME
-				);
-				if (yPosScrollView <=
-					headerStack[currentHeader - 1].offsetTop) {
-					--balloonInst.currentHeader;
-				}
-				jeeves.toggleClassName(
-					headerStack[currentHeader - 1],
-					INFLATION_CLASS_NAME
-				);
-			}
+	function unstickHeaders (balloonInst, endIndex) {
+		var toIndex = endIndex;
+		if (endIndex === undefined) {
+			toIndex = 0;
 		}
+
+		jeeves.each(balloonInst.headerStack.slice(toIndex), function (o, index) {
+			if (jeeves.hasClass(o, INFLATION_CLASS_NAME)) {
+				jeeves.toggleClassName(o, INFLATION_CLASS_NAME);
+				o.parentNode.style.height = '';
+				o.parentNode.style.width = '';
+				if (balloonInst.stackHeaders && index > 0) {
+					o.style.top = '';
+				}
+			}
+
+			if (!jeeves.hasClass(o, FLOATING_CLASS_NAME)) {
+				jeeves.toggleClassName(o, FLOATING_CLASS_NAME);
+			}
+		});
 	}
 
-	function inflateUpToCurrent (balloonInst, yPosScrollView) {
-		var i, currentHeader = 0,
-		offsetTop = 0;
-		for (i = balloonInst.headerStack.length - 1; i >= 0; --i) {
-			offsetTop = 0;
-			if (balloonInst.stackHeaders) {
-				var j;
-				for (j = 0; j < i; ++j) {
-					offsetTop += balloonInst.headerStack[j].offsetHeight;
-				}
+	function stickHeaders (balloonInst, endIndex) {
+		jeeves.each(balloonInst.headerStack.slice(0, endIndex), function (o, index) {
+			if (!jeeves.hasClass(o, INFLATION_CLASS_NAME)) {
+				jeeves.toggleClassName(o, INFLATION_CLASS_NAME);
+				o.parentNode.style.height = o.offsetHeight + 'px';
+				o.parentNode.style.width = o.offsetWidth + 'px';
 			}
-			if ((yPosScrollView + offsetTop) >= balloonInst.headerStack[i].offsetTop) {
-				currentHeader = i;
-				break;
-			}
-		}
 
-		balloonInst.currentHeader = currentHeader;
-		if (balloonInst.stackHeaders) {
-			balloonInst.offsetTop =
-			offsetTop + balloonInst.headerStack[currentHeader].offsetHeight;
-		}
-		jeeves.each(balloonInst.headerStack.slice(0, currentHeader + 1), function (o, index) {
-			jeeves.toggleClassName(o, INFLATION_CLASS_NAME);
-			o.parentNode.style.height = o.offsetHeight + 'px';
-			o.parentNode.style.width = o.offsetWidth + 'px';
-
-			if (currentHeader > 0 && balloonInst.stackHeaders) {
+			if (balloonInst.currentHeader > 0 && balloonInst.stackHeaders) {
 				var offsetTop = 0, i;
 				for (i = 0; i < index; ++i) {
 					offsetTop += balloonInst.headerStack[i].offsetHeight;
@@ -231,26 +143,43 @@
 		});
 	}
 
+	function inflateUpToCurrent (balloonInst, yPosScrollView) {
+		unstickHeaders(balloonInst);
+
+		var i, currentHeader = 0,
+		offsetTop = 0;
+		for (i = balloonInst.headerStack.length - 1; i >= 0; --i) {
+			offsetTop = 0;
+			if (balloonInst.stackHeaders) {
+				var j;
+				for (j = 0; j < i; ++j) {
+					offsetTop += balloonInst.headerStack[j].offsetHeight;
+				}
+			}
+			if ((yPosScrollView + offsetTop) >= balloonInst.headerStack[i].offsetTop) {
+				currentHeader = i;
+				break;
+			} else if (i === 0) {
+				// we are above the first header in the header stack
+				currentHeader = -1;
+			}
+		}
+
+		if (currentHeader !== -1) {
+			balloonInst.currentHeader = currentHeader;
+			if (balloonInst.stackHeaders) {
+				balloonInst.offsetTop =
+				offsetTop + balloonInst.headerStack[currentHeader].offsetHeight;
+			}
+			stickHeaders(balloonInst, currentHeader + 1);
+			unstickHeaders(balloonInst, currentHeader + 1);
+		}
+	}
+
 	function pump (balloonInst, scrollView) {
 		var yPosScrollView = (scrollView === window) ?
 		jeeves.getWindowScrollPos() : jeeves.getOffset(scrollView).top;
 		inflateUpToCurrent(balloonInst, yPosScrollView);
-
-		scrollView.onscroll = function () {
-			pumpCore(balloonInst, scrollView);
-		}
-	}
-
-	function pumpCore (balloonInst, scrollView) {
-		var yPosScrollView = (scrollView === window) ?
-		jeeves.getWindowScrollPos() : jeeves.getOffset(scrollView).top;
-		determineCurrentHeader(balloonInst, yPosScrollView);
-
-		jeeves.pumpHelper(
-			balloonInst.headerStack[balloonInst.currentHeader],
-			balloonInst,
-			yPosScrollView
-		);
 	}
 
 	function sortStack (stack) {
@@ -304,7 +233,7 @@
 				addIndividual(o);
 			}
 			sortStack(this.headerStack);
-			window.onscroll = function () {
+			this.scrollView.onscroll = function () {
 				pump(that, that.scrollView);
 			}
 		},
