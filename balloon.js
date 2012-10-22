@@ -287,6 +287,10 @@
 			jeeves.each(this.idMap, function (id) {
 				that.deflate(id);
 			});
+		},
+
+		version: function () {
+			return VER;
 		}
 	};
 

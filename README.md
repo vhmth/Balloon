@@ -129,3 +129,12 @@ balloon version or will build on top of Balloon to check if the user agent
 is on iOS and then perform some trickery. Until then, I suggest only using
 Balloon if you intend for your website to be accessed from a desktop and
 do not care if the headers stick immediately on iOS.
+
+Balloon Version
+===============
+
+The current version of Balloon is 0.1. However, Balloon may be upgraded
+every now and then. To check which version of Balloon you have, call the
+version function from the global Balloon object:
+
+    Balloon.version();
