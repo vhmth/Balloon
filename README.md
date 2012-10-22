@@ -11,7 +11,7 @@ Inflating
 
 Making your headers sticky is as easy as 3 steps!
 
-1.) Include the balloon.js and balloon.css files in your template.
+1.) Include the balloon.js (or balloon.min.js) and balloon.css files in your template.
     Each header element you wish to make sticky must be encased by
     a div element. For instance:
 
@@ -129,6 +129,7 @@ balloon version or will build on top of Balloon to check if the user agent
 is on iOS and then perform some trickery. Until then, I suggest only using
 Balloon if you intend for your website to be accessed from a desktop and
 do not care if the headers stick immediately on iOS.
+
 
 Balloon Version
 ===============
