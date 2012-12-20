@@ -300,4 +300,4 @@
 		delete root.Balloon;
 	};
 
-}.bind(this)(this.document));
+}).apply(this, [this.document]);
