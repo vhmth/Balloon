@@ -11,7 +11,7 @@ Inflating
 
 Making your headers sticky is as easy as 3 steps!
 
-1.) Include the balloon.js (or balloon.min.js) and balloon.css files in your template.
+1.) Include the balloon.js and balloon.css files in your template.
     Each header element you wish to make sticky must be encased by
     a div element. For instance:
 
@@ -51,18 +51,20 @@ Making your headers sticky is as easy as 3 steps!
 
 3.) Once you have your Balloon created, make sure you inflate it so
   it sticks to the top. To do this, simply pass in one or more strings
-  that represent the id(s) of the header(s) you wish to make sticky.
-  Remember to make sure that these elements are all within the same
-  scrolling view/element. If you're passing in multiple ids, you may
-  pass them in as either an object or array (the values in an object
-  literal do not matter, just that the keys are strings that represent
-  the id(s) of the header(s) you wish to stick):
+  that represent the id(s)/class(es) of the header(s) you wish to make sticky.
+  Although ids may be passed in as a simple string, to denote a class,
+  you must prepend a '.' to the string. Remember to make sure that these
+  elements are all within the same scrolling view/element. If you're
+  passing in multiple ids/classes, you may pass them in as either an
+  object or array (the values in an object literal do not matter, just
+  that the keys are strings that represent the id(s) of the header(s)
+  you wish to stick):
 
-    balloonInst.inflate(['header1', 'header2']);
+    balloonInst.inflate(['header1', '.headerClass']);
 
   OR
 
-    balloonInst.inflate({'header1': SOME_VALUE, 'header2': SOME_VALUE});
+    balloonInst.inflate({'header1': SOME_VALUE, '.headerClass': SOME_VALUE});
 
   OR
 
@@ -97,18 +99,18 @@ This will not actually destroy the instance. It will simply unstick
 all headers it owns.
 
 If you wish to unstick one or more headers a balloon instance owns,
-call deflate, passing in the id(s) of the header(s) you wish to
+call deflate, passing in the id(s)/classe(es) of the header(s) you wish to
 unstick:
 
     balloonInst.deflate('header');
 
   OR
 
-    balloonInst.deflate(['header1', 'header2']);
+    balloonInst.deflate(['header1', '.headerClass']);
 
   OR
 
-    balloonInst.deflate({'header1': SOME_VALUE, 'header2': SOME_VALUE});
+    balloonInst.deflate({'header1': SOME_VALUE, '.headerClass': SOME_VALUE});
 
 You will notice that Balloon is added to the global scope when the
 balloon.js script is included. If you wish to destroy this object,
