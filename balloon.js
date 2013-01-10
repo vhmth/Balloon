@@ -14,6 +14,36 @@
  *        this header. Code on broski.
  */
 
+// Function.prototype.bind polyfill found on
+// https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind
+// for compatibility with IE versions <= 8
+if (!Function.prototype.bind) {
+	Function.prototype.bind = function (oThis) {
+		'use strict';
+		if (typeof this !== 'function') {
+			throw new TypeError(
+				'Function.prototype.bind - what is trying to be bound is not callable'
+			);
+		}
+
+		var aArgs = Array.prototype.slice.call(arguments, 1),
+			fToBind = this,
+			FuncNOP = function () {},
+			fBound = function () {
+				return fToBind.apply(
+					(this instanceof FuncNOP && oThis) ?
+							this : oThis,
+					aArgs.concat(Array.prototype.slice.call(arguments))
+				);
+			};
+
+		FuncNOP.prototype = this.prototype;
+		fBound.prototype = new FuncNOP();
+
+		return fBound;
+	};
+}
+
 (function (doc) {
 	'use strict';
 
